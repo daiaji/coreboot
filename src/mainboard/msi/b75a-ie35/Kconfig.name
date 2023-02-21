@@ -1,0 +1,2 @@
+config BOARD_MSI_B75A_IE35
+	bool "B75A-IE35 (MS-7758)"
