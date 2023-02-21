@@ -1,0 +1,2 @@
+config BOARD_MSI_B85M_E45
+	bool "B85M-E45 (MS-7817 v2.1)"
