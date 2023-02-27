@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 
-#ifndef _ELKHARTLAKE_ME_H_
-#define _ELKHARTLAKE_ME_H_
+#ifndef _SOC_INTEL_COMMON_ME_SPEC_15_H_
+#define _SOC_INTEL_COMMON_ME_SPEC_15_H_
 
 /* ME Host Firmware Status register 1 */
 union me_hfsts1 {
@@ -18,7 +18,8 @@ union me_hfsts1 {
 		uint32_t operation_mode		: 4;
 		uint32_t reserved_0		: 4;
 		uint32_t boot_options_present	: 1;
-		uint32_t reserved_1		: 6;
+		uint32_t invoke_enhance_dbg_mode: 1;
+		uint32_t reserved_1		: 5;
 		uint32_t d0i3_support_valid	: 1;
 	} __packed fields;
 };
@@ -73,4 +74,4 @@ union me_hfsts6 {
 		uint32_t txt_support		: 1;
 	} __packed fields;
 };
-#endif /* _ELKHARTLAKE_ME_H_ */
+#endif /* _SOC_INTEL_COMMON_ME_SPEC_15_H_ */

@@ -22,7 +22,6 @@ romstage-y += espi.c
 romstage-y += meminit.c
 romstage-y += pcie_rp.c
 romstage-y += reset.c
-romstage-y += cpu.c
 
 ramstage-y += acpi.c
 ramstage-y += chip.c
@@ -34,7 +33,6 @@ ramstage-y += fsp_params.c
 ramstage-y += graphics.c
 ramstage-y += hsphy.c
 ramstage-y += lockdown.c
-ramstage-y += me.c
 ramstage-y += p2sb.c
 ramstage-y += pcie_rp.c
 ramstage-y += pmc.c

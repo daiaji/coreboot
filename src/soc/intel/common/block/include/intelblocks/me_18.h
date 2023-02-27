@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 
-#ifndef _JASPERLAKE_ME_H_
-#define _JASPERLAKE_ME_H_
+#ifndef _SOC_INTEL_COMMON_ME_SPEC_18_H_
+#define _SOC_INTEL_COMMON_ME_SPEC_18_H_
 
 /* ME Host Firmware Status register 1 */
 union me_hfsts1 {
@@ -18,7 +18,8 @@ union me_hfsts1 {
 		uint32_t operation_mode		: 4;
 		uint32_t reserved_0		: 4;
 		uint32_t boot_options_present	: 1;
-		uint32_t reserved_1		: 6;
+		uint32_t invoke_enhance_dbg_mode: 1;
+		uint32_t reserved_1		: 5;
 		uint32_t d0i3_support_valid	: 1;
 	} __packed fields;
 };
@@ -58,7 +59,11 @@ union me_hfsts4 {
 union me_hfsts5 {
 	uint32_t data;
 	struct {
-		uint32_t reserved_0;
+		uint32_t reserved_0		: 17;
+		uint32_t txt_support		: 1;
+		uint32_t reserved_1		: 3;
+		uint32_t cpu_debug_disabled	: 1;
+		uint32_t reserved_2		: 10;
 	} __packed fields;
 };
 
@@ -66,10 +71,11 @@ union me_hfsts5 {
 union me_hfsts6 {
 	uint32_t data;
 	struct {
-		uint32_t reserved_0		: 1;
-		uint32_t cpu_debug_disable	: 1;
-		uint32_t reserved_1		: 29;
-		uint32_t txt_support		: 1;
+		uint32_t reserved_0		: 21;
+		uint32_t manuf_lock		: 1;
+		uint32_t reserved_1		: 8;
+		uint32_t fpf_soc_lock		: 1;
+		uint32_t reserved_2		: 1;
 	} __packed fields;
 };
-#endif /* _JASPERLAKE_ME_H_ */
+#endif /* _SOC_INTEL_COMMON_ME_SPEC_18_H_ */

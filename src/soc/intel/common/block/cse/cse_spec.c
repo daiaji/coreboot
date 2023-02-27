@@ -2,19 +2,28 @@
 
 #include <bootstate.h>
 #include <intelblocks/cse.h>
+#include <intelblocks/me.h>
 #include <console/console.h>
-#include <soc/me.h>
 #include <stdint.h>
 
-static bool is_manuf_mode(union me_hfsts1 hfsts1, union me_hfsts6 hfsts6)
+/*
+ * This function returns state of manufacturing mode.
+ *
+ * ME manufacturing mode is disabled if the descriptor is locked and fuses
+ * are programmed. Additionally, if the SoC supports manufacturing variable, should be locked.
+ */
+static bool is_manufacturing_mode(union me_hfsts1 hfsts1, union me_hfsts6 hfsts6)
 {
-	/*
-	 * ME manufacturing mode is disabled if the descriptor is locked, fuses
-	 * are programmed and manufacturing variables are locked.
-	 */
+#if CONFIG_ME_SPEC <= 13
+	return !(hfsts1.fields.mfg_mode == 0);
+#elif CONFIG_ME_SPEC <= 15
+	return !((hfsts1.fields.mfg_mode == 0) &&
+		 (hfsts6.fields.fpf_soc_lock == 1));
+#else
 	return !((hfsts1.fields.mfg_mode == 0) &&
 		 (hfsts6.fields.fpf_soc_lock == 1) &&
 		 (hfsts6.fields.manuf_lock == 1));
+#endif
 }
 
 static void dump_me_status(void *unused)
@@ -25,7 +34,7 @@ static void dump_me_status(void *unused)
 	union me_hfsts4 hfsts4;
 	union me_hfsts5 hfsts5;
 	union me_hfsts6 hfsts6;
-	bool manuf_mode;
+	bool manufacturing_mode;
 
 	if (!is_cse_enabled())
 		return;
@@ -44,19 +53,15 @@ static void dump_me_status(void *unused)
 	printk(BIOS_DEBUG, "ME: HFSTS5                      : 0x%08X\n", hfsts5.data);
 	printk(BIOS_DEBUG, "ME: HFSTS6                      : 0x%08X\n", hfsts6.data);
 
-	manuf_mode = is_manuf_mode(hfsts1, hfsts6);
+	manufacturing_mode = is_manufacturing_mode(hfsts1, hfsts6);
 	printk(BIOS_DEBUG, "ME: Manufacturing Mode          : %s\n",
-	       manuf_mode ? "YES" : "NO");
+	       manufacturing_mode ? "YES" : "NO");
 	/*
 	 * The SPI Protection Mode bit reflects SPI descriptor
 	 * locked(0) or unlocked(1).
 	 */
 	printk(BIOS_DEBUG, "ME: SPI Protection Mode Enabled : %s\n",
 		hfsts1.fields.mfg_mode ? "NO" : "YES");
-	printk(BIOS_DEBUG, "ME: FPFs Committed              : %s\n",
-		hfsts6.fields.fpf_soc_lock ? "YES" : "NO");
-	printk(BIOS_DEBUG, "ME: Manufacturing Vars Locked   : %s\n",
-		hfsts6.fields.manuf_lock ? "YES" : "NO");
 	printk(BIOS_DEBUG, "ME: FW Partition Table          : %s\n",
 		hfsts1.fields.fpt_bad ? "BAD" : "OK");
 	printk(BIOS_DEBUG, "ME: Bringup Loader Failure      : %s\n",
@@ -83,15 +88,31 @@ static void dump_me_status(void *unused)
 		hfsts1.fields.operation_mode);
 	printk(BIOS_DEBUG, "ME: Error Code                  : %u\n",
 		hfsts1.fields.error_code);
+#if CONFIG_ME_SPEC >= 15
+	printk(BIOS_DEBUG, "ME: FPFs Committed              : %s\n",
+		hfsts6.fields.fpf_soc_lock ? "YES" : "NO");
 	printk(BIOS_DEBUG, "ME: Enhanced Debug Mode         : %s\n",
 		hfsts1.fields.invoke_enhance_dbg_mode ? "YES" : "NO");
+#endif
+
+#if CONFIG_ME_SPEC <= 16
 	printk(BIOS_DEBUG, "ME: CPU Debug Disabled          : %s\n",
 		hfsts6.fields.cpu_debug_disable ? "YES" : "NO");
 	printk(BIOS_DEBUG, "ME: TXT Support                 : %s\n",
 		hfsts6.fields.txt_support ? "YES" : "NO");
+#else
+	printk(BIOS_DEBUG, "ME: CPU Debug Disabled          : %s\n",
+		hfsts5.fields.cpu_debug_disabled ? "YES" : "NO");
+	printk(BIOS_DEBUG, "ME: TXT Support                 : %s\n",
+		hfsts5.fields.txt_support ? "YES" : "NO");
+#endif
 
+#if CONFIG_ME_SPEC >= 16
+	printk(BIOS_DEBUG, "ME: Manufacturing Vars Locked   : %s\n",
+		hfsts6.fields.manuf_lock ? "YES" : "NO");
 	if (CONFIG(SOC_INTEL_CSE_LITE_SKU))
-		cse_log_ro_write_protection_info(manuf_mode);
+		cse_log_ro_write_protection_info(manufacturing_mode);
+#endif
 }
 
 BOOT_STATE_INIT_ENTRY(BS_DEV_ENABLE, BS_ON_EXIT, print_me_fw_version, NULL);

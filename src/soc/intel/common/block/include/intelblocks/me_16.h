@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 
-#ifndef _ALDERLAKE_ME_H_
-#define _ALDERLAKE_ME_H_
+#ifndef _SOC_INTEL_COMMON_ME_SPEC_16_H_
+#define _SOC_INTEL_COMMON_ME_SPEC_16_H_
 
 /* ME Host Firmware Status register 1 */
 union me_hfsts1 {
@@ -52,7 +52,7 @@ union me_hfsts3 {
 union me_hfsts4 {
 	uint32_t data;
 	struct {
-		uint32_t rsvd0;
+		uint32_t reserved_0;
 	} __packed fields;
 };
 
@@ -60,7 +60,7 @@ union me_hfsts4 {
 union me_hfsts5 {
 	uint32_t data;
 	struct {
-		uint32_t rsvd0;
+		uint32_t reserved_0;
 	} __packed fields;
 };
 
@@ -78,4 +78,4 @@ union me_hfsts6 {
 	} __packed fields;
 };
 
-#endif /* _ALDERLAKE_ME_H_ */
+#endif /* _SOC_INTEL_COMMON_ME_SPEC_16_H_ */

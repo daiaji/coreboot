@@ -75,6 +75,7 @@ config CPU_SPECIFIC_OPTIONS
 	select INTEL_GMA_ADD_VBT if RUN_FSP_GOP
 	select INTEL_GMA_OPREGION_2_1
 	select INTEL_TXT_LIB
+	select MP_SERVICES_PPI_V2
 	select MRC_SETTINGS_PROTECT
 	select PARALLEL_MP_AP_WORK
 	select PLATFORM_USES_FSP2_2
@@ -105,6 +106,7 @@ config CPU_SPECIFIC_OPTIONS
 	select SOC_INTEL_COMMON_BLOCK_HECI1_DISABLE_USING_PMC_IPC
 	select SOC_INTEL_COMMON_BLOCK_IPU if !SOC_INTEL_ALDERLAKE_PCH_S
 	select SOC_INTEL_COMMON_BLOCK_IRQ
+	select SOC_INTEL_COMMON_BLOCK_ME_SPEC_16
 	select SOC_INTEL_COMMON_BLOCK_MEMINIT
 	select SOC_INTEL_COMMON_BLOCK_PCIE_RTD3
 	select SOC_INTEL_COMMON_BLOCK_PMC_EPOC
@@ -475,31 +477,6 @@ config USE_UNIFIED_AP_FIRMWARE_FOR_UFS_AND_NON_UFS
 	  Note: selection of this config would introduce an additional warm reset in
 	  cold-reset scenarios due to function disabling of the UFS controller.
 
-choice
-	prompt "Multiprocessor (MP) Initialization configuration to use"
-	default USE_FSP_MP_INIT
-
-config USE_FSP_MP_INIT
-	bool "Use FSP MP init"
-	select MP_SERVICES_PPI_V2
-	help
-	  Upon selection, coreboot brings APs from reset and the FSP runs feature programming.
-
-config USE_COREBOOT_MP_INIT
-	bool "Use coreboot MP init"
-	# FSP assumes ownership of the APs (Application Processors)
-	# upon passing `NULL` pointer to the CpuMpPpi FSP-S UPD.
-	# Hence, select `MP_SERVICES_PPI_V2_NOOP` config to pass a valid
-	# pointer to the CpuMpPpi UPD with FSP_UNSUPPORTED type APIs.
-	# This will protect APs from getting hijacked by FSP while coreboot
-	# decides to set SkipMpInit UPD.
-	select MP_SERVICES_PPI_V2_NOOP
-	select RELOAD_MICROCODE_PATCH
-	help
-	  Upon selection, coreboot performs MP Init.
-
-endchoice
-
 if STITCH_ME_BIN
 
 config CSE_BPDT_VERSION
@@ -536,5 +513,19 @@ config INTEL_GMA_BCLM_OFFSET
 
 config INTEL_GMA_BCLM_WIDTH
 	default 32
+
+config FSP_PUBLISH_MBP_HOB
+	bool
+	default n if CHROMEOS && (SOC_INTEL_RAPTORLAKE || SOC_INTEL_ALDERLAKE_PCH_N)
+	default y
+	help
+	  This is to control creation of ME_BIOS_PAYLOAD_HOB (MBP HOB) by FSP.
+	  Disabling it for the platforms, which do not use MBP HOB, can improve the boot time.
+
+	  Note: It cannot be disabled for ADL-P based platforms because ADL-P FSP relies on
+	  MBP HOB for ChipsetInit version for ChipsetInit sync. As ChipsetInit sync doesn't
+	  occur if no MBP HOB, so it results S0ix issue. This limitation is addressed in the
+	  later platforms so creation of MBP HOB can be skipped for ADL-N and RPL based
+	  platforms.
 
 endif

@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 
-#ifndef _CANNONLAKE_ME_H_
-#define _CANNONLAKE_ME_H_
+#ifndef _SOC_INTEL_COMMON_ME_SPEC_13_H_
+#define _SOC_INTEL_COMMON_ME_SPEC_13_H_
 
 /* ME Host Firmware Status register 1 */
 union me_hfsts1 {
@@ -72,7 +72,4 @@ union me_hfsts6 {
 		uint32_t txt_support		: 1;
 	} __packed fields;
 };
-
-void dump_me_status(void *unused);
-
-#endif /* _CANNONLAKE_ME_H_ */
+#endif /* _SOC_INTEL_COMMON_ME_SPEC_13_H_ */
